@@ -5,6 +5,7 @@
     :locale-data="localeData"
     auto-apply
     @select="changeDates"
+    :controlContainerClass="'form-control'"
   >
     <template
       v-slot:input="picker"
