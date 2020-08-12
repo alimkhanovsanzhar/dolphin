@@ -27,7 +27,10 @@ export default {
     loading: {
       mainTable: false,
     },
-    stat: []
+    stat: [],
+    filters: {
+      name: ''
+    }
   },
   getters: {
     ...mixinDialogGetters,
@@ -43,6 +46,23 @@ export default {
 
     FILTER: state => {
       state.campaigns.filtered = state.campaigns.all;
+    },
+
+    FILTER_CAMPAIGNS (state) {
+      let campaigns = state.campaigns.all;
+      const filters = state.filters;
+
+      if (filters.name) {
+        if (filters.name.length > 0) {
+          campaigns = campaigns.filter(campaigns => {
+            return (
+              campaigns.name.toString().toLowerCase().search(filters.name.toLowerCase()) !== -1
+            );
+          });
+        }
+      }
+      
+      state.campaigns.filtered = campaigns;
     },
 
     SET_STAT: (state, stat) => {
@@ -61,6 +81,10 @@ export default {
     SET_FILTERED: (state, payload) => {
       state.campaigns.filtered = payload;
     },
+
+    SET_FILTERS_NAME: (state, payload) => {
+      state.filters.name = payload;
+    }
   },
   actions: {
     ...mixinDialogActions,
@@ -90,6 +114,7 @@ export default {
         });
         commit('SET_ALL', response.data.data);
         commit('FILTER');
+        commit('FILTER_CAMPAIGNS', rootState.adsmanager.filters);
         dispatch('loadStat');
       }
     },
@@ -135,6 +160,11 @@ export default {
       context.commit('SET_ALL', []);
       context.commit('SET_FILTERED', []);
       context.commit('SET_SELECTED', []);
+    },
+
+    async setFiltersName(context, payload) {
+      context.commit('SET_FILTERS_NAME', payload);
+      context.commit('FILTER_CAMPAIGNS');
     }
   }
 };
